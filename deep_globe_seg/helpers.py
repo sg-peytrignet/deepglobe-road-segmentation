@@ -7,7 +7,8 @@ import cv2
 import albumentations as A
 import logging
 from tensorflow import keras
-
+from dataclasses import dataclass, field
+from typing import Dict, Tuple
 
 def visualize(**images):
     """
@@ -91,66 +92,67 @@ def list_subfolders_and_files(base_folder, num_files=10):
             print(f"  {file}")
 
 
+@dataclass
+class Path:
+    model_type: str
+    image_folder: str
+    metadata: str
+    class_dict: str
+    train: str
+    valid: str
+    test: str
+    tensorboard_logs_path: str
+    saved_model_folder: str
+    model_save_path: str
+
+@dataclass
+class Dataset:
+    img_size: Tuple[int, int] = (512, 512)
+    input_shape: Tuple[int, int, int] = (512, 512, 3)
+
+@dataclass
+class HyperParameter:
+    batch_size: int = 16
+    learning_rate: float = 0.00005
+    num_classes: int = 1
+    epochs: int = 40
+
 class CFG:
     """
     Configuration class for defining paths, dataset parameters, and hyperparameters
     for a machine learning model.
-
-    Args:
-        image_folder (str): Path to the folder containing image data.
-        saved_model_folder (str): Path where trained models will be saved.
-        tensorboard_logs_path (str): Path where TensorBoard logs will be saved.
-        dataset_params (dict, optional): Dictionary containing dataset parameters.
-            Defaults to None.
-        hyper_params (dict, optional): Dictionary containing hyperparameters.
-            Defaults to None.
-        model_type (str, optional): Type of the machine learning model. Defaults to "unet".
-
-    Attributes:
-        Path (type): Nested class containing paths for images, metadata, class dictionary,
-            training, validation, testing, saved model folder, model save path, and TensorBoard logs path.
-        Dataset (type): Nested class containing dataset parameters such as batch size, image size, and buffer size.
-        HyperParameter (type): Nested class containing hyperparameters such as batch size, learning rate,
-            input shape, image size, number of classes, and number of epochs.
     """
 
-    def __init__(self, image_folder, saved_model_folder, tensorboard_logs_path,
-                 dataset_params=None, hyper_params=None, model_type="unet"):
+    def __init__(
+        self,
+        image_folder: str,
+        saved_model_folder: str,
+        tensorboard_logs_path: str,
+        dataset_params: Dict = None,
+        hyper_params: Dict = None,
+        model_type: str = "unet"
+    ):
         self.model_type = model_type
         
         # Path definition
-        self.Path = type('Path', (), {
-            'model_type': model_type,
-            'image_folder': image_folder,
-            'metadata': os.path.join(image_folder, 'metadata.csv'),
-            'class_dict': os.path.join(image_folder, 'class_dict.csv'),
-            'train': os.path.join(image_folder, 'train/'),
-            'valid': os.path.join(image_folder, 'valid/'),
-            'test': os.path.join(image_folder, 'test/'),
-            'tensorboard_logs_path': tensorboard_logs_path,
-            'saved_model_folder': saved_model_folder,
-            'model_save_path': f'{saved_model_folder}/{model_type}.weights.h5',
-        })
+        self.Path = Path(
+            model_type=model_type,
+            image_folder=image_folder,
+            metadata=os.path.join(image_folder, 'metadata.csv'),
+            class_dict=os.path.join(image_folder, 'class_dict.csv'),
+            train=os.path.join(image_folder, 'train/'),
+            valid=os.path.join(image_folder, 'valid/'),
+            test=os.path.join(image_folder, 'test/'),
+            tensorboard_logs_path=tensorboard_logs_path,
+            saved_model_folder=saved_model_folder,
+            model_save_path=f'{saved_model_folder}/{model_type}.weights.h5'
+        )
         
         # Dataset parameters
-        if dataset_params:
-            self.Dataset = type('Dataset', (), dataset_params)
-        else:
-            self.Dataset = type('Dataset', (), {
-                'img_size': (512, 512),
-                'input_shape': (512, 512, 3),
-            })
+        self.Dataset = Dataset(**(dataset_params or {}))
         
         # Hyperparameters
-        if hyper_params:
-            self.HyperParameter = type('HyperParameter', (), hyper_params)
-        else:
-            self.HyperParameter = type('HyperParameter', (), {
-                'batch_size': 16,
-                'learning_rate': 0.00005,
-                'num_classes': 1,
-                'epochs': 40
-            })
+        self.HyperParameter = HyperParameter(**(hyper_params or {}))
 
 
 def get_training_augmentation(height, width):
