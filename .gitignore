@@ -1,6 +1,10 @@
 # Data
 data/*
 
+# Notebooks
+notebooks/*.ipynb
+!notebooks/deep-globe-road-segmentation.ipynb
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
