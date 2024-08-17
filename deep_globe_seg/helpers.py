@@ -2,7 +2,6 @@ import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import os
 import cv2
 import albumentations as A
 import logging
@@ -374,6 +373,14 @@ class Dataset:
 
 class Dataloader(keras.utils.Sequence):
     def __init__(self, dataset, batch_size=1, shuffle=False):
+        """
+        Initialize the Dataloader object.
+        
+        Args:
+            dataset (Dataset): The dataset object from which to load the data.
+            batch_size (int, optional): The size of each batch. Defaults to 1.
+            shuffle (bool, optional): Whether to shuffle the data after each epoch. Defaults to False.
+        """
         self.dataset = dataset
         self.batch_size = batch_size
         self.shuffle = shuffle
@@ -381,7 +388,15 @@ class Dataloader(keras.utils.Sequence):
         self.on_epoch_end()
 
     def __getitem__(self, i):
-        # Determine the indices of the batch
+        """
+        Generate one batch of data.
+        
+        Args:
+            i (int): Index of the batch.
+        
+        Returns:
+            list: A list containing the batch data (image and mask tensors).
+        """
         start = i * self.batch_size
         stop = min((i + 1) * self.batch_size, len(self.indexes))  # Prevent index out of range
         batch_indexes = self.indexes[start:stop]
@@ -398,8 +413,12 @@ class Dataloader(keras.utils.Sequence):
         return batch
 
     def __len__(self):
+        """Denotes the number of batches per epoch"""
         return len(self.indexes) // self.batch_size
 
     def on_epoch_end(self):
+        """
+        Update indexes after each epoch.
+        """
         if self.shuffle:
             np.random.shuffle(self.indexes)
