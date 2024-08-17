@@ -373,15 +373,6 @@ class Dataset:
 
 
 class Dataloader(keras.utils.Sequence):
-    """
-    Load data from dataset and form batches.
-    
-    Args:
-        dataset (Dataset): Instance of Dataset class for image loading and preprocessing.
-        batch_size (int): Number of images in a batch.
-        shuffle (bool): If `True`, shuffle image indexes each epoch.
-    """
-    
     def __init__(self, dataset, batch_size=1, shuffle=False):
         self.dataset = dataset
         self.batch_size = batch_size
@@ -390,38 +381,25 @@ class Dataloader(keras.utils.Sequence):
         self.on_epoch_end()
 
     def __getitem__(self, i):
-        """
-        Generate one batch of data.
-        
-        Args:
-            i (int): Index of the batch.
-        
-        Returns:
-            list: A batch of images and masks.
-        """
         # Determine the indices of the batch
         start = i * self.batch_size
-        stop = (i + 1) * self.batch_size
+        stop = min((i + 1) * self.batch_size, len(self.indexes))  # Prevent index out of range
+        batch_indexes = self.indexes[start:stop]
+
         # Collect batch data
-        data = [self.dataset[j] for j in range(start, stop)]
+        data = [self.dataset[j] for j in batch_indexes]
+
         # Transpose list of lists to create batch
         batch = [np.stack(samples, axis=0) for samples in zip(*data)]
+
         # Convert batch to float32
         batch = [tf.cast(item, tf.float32) for item in batch]
-        return batch
-    
-    def __len__(self):
-        """
-        Denotes the number of batches per epoch.
         
-        Returns:
-            int: Number of batches per epoch.
-        """
+        return batch
+
+    def __len__(self):
         return len(self.indexes) // self.batch_size
-    
+
     def on_epoch_end(self):
-        """
-        Callback function to shuffle indexes each epoch.
-        """
         if self.shuffle:
             np.random.shuffle(self.indexes)

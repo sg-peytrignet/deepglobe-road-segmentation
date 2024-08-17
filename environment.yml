@@ -4,7 +4,6 @@ channels:
   - conda-forge
 dependencies:
   - python=3.9
-  - pip
   - numpy
   - pandas
   - matplotlib
@@ -17,5 +16,6 @@ dependencies:
   - h5py
   - tqdm
   - ipykernel
+  - pip
   - pip:
     - segmentation-models
