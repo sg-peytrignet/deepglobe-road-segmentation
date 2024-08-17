@@ -388,27 +388,27 @@ class Dataloader(keras.utils.Sequence):
         self.on_epoch_end()
 
     def __getitem__(self, i):
-        
-        # collect batch data
+        """Generate one batch of data."""
         start = i * self.batch_size
-        stop = (i + 1) * self.batch_size
-        data = []
-        for j in range(start, stop):
-            data.append(self.dataset[j])
+        end = min((i + 1) * self.batch_size, len(self.indexes))
+        batch_indexes = self.indexes[start:end]
         
-        # transpose list of lists
+        # Collect batch data
+        data = [self.dataset[j] for j in batch_indexes]
+        
+        # Transpose list of lists to create batch
         batch = [np.stack(samples, axis=0) for samples in zip(*data)]
         
-        # convert batch to float32
+        # Convert batch to float32
         batch = [tf.cast(item, tf.float32) for item in batch]
         
         return batch
     
     def __len__(self):
         """Denotes the number of batches per epoch"""
-        return len(self.indexes) // self.batch_size
+        return np.ceil(len(self.indexes) / self.batch_size).astype(int)
     
     def on_epoch_end(self):
         """Callback function to shuffle indexes each epoch"""
         if self.shuffle:
-            self.indexes = np.random.permutation(self.indexes)   
+            self.indexes = np.random.permutation(self.indexes)  
