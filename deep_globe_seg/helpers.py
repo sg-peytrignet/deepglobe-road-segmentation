@@ -370,17 +370,17 @@ class Dataset:
         if 'sat_image_path' not in self.df.columns or 'mask_path' not in self.df.columns:
             raise ValueError("DataFrame must contain 'sat_image_path' and 'mask_path' columns")
 
-
+            
 class Dataloader(keras.utils.Sequence):
+    """Load data from dataset and form batches
+    
+    Args:
+        dataset: instance of Dataset class for image loading and preprocessing.
+        batch_size: Integet number of images in batch.
+        shuffle: Boolean, if `True` shuffle image indexes each epoch.
+    """
+    
     def __init__(self, dataset, batch_size=1, shuffle=False):
-        """
-        Initialize the Dataloader object.
-        
-        Args:
-            dataset (Dataset): The dataset object from which to load the data.
-            batch_size (int, optional): The size of each batch. Defaults to 1.
-            shuffle (bool, optional): Whether to shuffle the data after each epoch. Defaults to False.
-        """
         self.dataset = dataset
         self.batch_size = batch_size
         self.shuffle = shuffle
@@ -388,37 +388,27 @@ class Dataloader(keras.utils.Sequence):
         self.on_epoch_end()
 
     def __getitem__(self, i):
-        """
-        Generate one batch of data.
         
-        Args:
-            i (int): Index of the batch.
-        
-        Returns:
-            list: A list containing the batch data (image and mask tensors).
-        """
+        # collect batch data
         start = i * self.batch_size
-        stop = min((i + 1) * self.batch_size, len(self.indexes))  # Prevent index out of range
-        batch_indexes = self.indexes[start:stop]
-
-        # Collect batch data
-        data = [self.dataset[j] for j in batch_indexes]
-
-        # Transpose list of lists to create batch
+        stop = (i + 1) * self.batch_size
+        data = []
+        for j in range(start, stop):
+            data.append(self.dataset[j])
+        
+        # transpose list of lists
         batch = [np.stack(samples, axis=0) for samples in zip(*data)]
-
-        # Convert batch to float32
+        
+        # convert batch to float32
         batch = [tf.cast(item, tf.float32) for item in batch]
         
         return batch
-
+    
     def __len__(self):
         """Denotes the number of batches per epoch"""
         return len(self.indexes) // self.batch_size
-
+    
     def on_epoch_end(self):
-        """
-        Update indexes after each epoch.
-        """
+        """Callback function to shuffle indexes each epoch"""
         if self.shuffle:
-            np.random.shuffle(self.indexes)
+            self.indexes = np.random.permutation(self.indexes)   
