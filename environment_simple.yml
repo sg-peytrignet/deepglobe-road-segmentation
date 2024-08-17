@@ -17,6 +17,5 @@ dependencies:
   - h5py
   - tqdm
   - ipykernel
-  - dataclasses
   - pip:
     - segmentation-models

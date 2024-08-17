@@ -7,8 +7,8 @@ import cv2
 import albumentations as A
 import logging
 from tensorflow import keras
-from dataclasses import dataclass, field
 from typing import Dict, Tuple
+import tensorflow as tf
 
 def visualize(**images):
     """
@@ -92,48 +92,63 @@ def list_subfolders_and_files(base_folder, num_files=10):
             print(f"  {file}")
 
 
-@dataclass
 class Path:
-    model_type: str
-    image_folder: str
-    metadata: str
-    class_dict: str
-    train: str
-    valid: str
-    test: str
-    tensorboard_logs_path: str
-    saved_model_folder: str
-    model_save_path: str
+    def __init__(self, 
+                 model_type: str,
+                 image_folder: str,
+                 metadata: str,
+                 class_dict: str,
+                 train: str,
+                 valid: str,
+                 test: str,
+                 tensorboard_logs_path: str,
+                 saved_model_folder: str,
+                 model_save_path: str):
+        self.model_type = model_type
+        self.image_folder = image_folder
+        self.metadata = metadata
+        self.class_dict = class_dict
+        self.train = train
+        self.valid = valid
+        self.test = test
+        self.tensorboard_logs_path = tensorboard_logs_path
+        self.saved_model_folder = saved_model_folder
+        self.model_save_path = model_save_path
 
-@dataclass
-class Dataset:
-    img_size: Tuple[int, int] = (512, 512)
-    input_shape: Tuple[int, int, int] = (512, 512, 3)
 
-@dataclass
+class Inputs:
+    def __init__(self, img_size=(512, 512), input_shape=(512, 512, 3)):
+        self.img_size = img_size
+        self.input_shape = input_shape
+
+
 class HyperParameter:
-    batch_size: int = 16
-    learning_rate: float = 0.00005
-    num_classes: int = 1
-    epochs: int = 40
+    def __init__(self, 
+                 batch_size: int = 16, 
+                 learning_rate: float = 0.00005, 
+                 num_classes: int = 1, 
+                 epochs: int = 40):
+        self.batch_size = batch_size
+        self.learning_rate = learning_rate
+        self.num_classes = num_classes
+        self.epochs = epochs
+
 
 class CFG:
     """
     Configuration class for defining paths, dataset parameters, and hyperparameters
     for a machine learning model.
     """
-
     def __init__(
         self,
         image_folder: str,
         saved_model_folder: str,
         tensorboard_logs_path: str,
-        dataset_params: Dict = None,
-        hyper_params: Dict = None,
-        model_type: str = "unet"
+        dataset_params: Dict,
+        hyper_params: Dict,
+        model_type: str
     ):
         self.model_type = model_type
-        
         # Path definition
         self.Path = Path(
             model_type=model_type,
@@ -149,13 +164,21 @@ class CFG:
         )
         
         # Dataset parameters
-        self.Dataset = Dataset(**(dataset_params or {}))
+        self.Dataset = Inputs(
+            img_size=dataset_params['img_size'],
+            input_shape=dataset_params['input_shape']
+        )
         
         # Hyperparameters
-        self.HyperParameter = HyperParameter(**(hyper_params or {}))
+        self.HyperParameter = HyperParameter(
+            batch_size=hyper_params['batch_size'],
+            learning_rate=hyper_params['learning_rate'],
+            num_classes=hyper_params['num_classes'],
+            epochs=hyper_params['epochs']
+        )
 
 
-def get_training_augmentation(height, width):
+def get_training_augmentation(size):
     """
     Create a training augmentation pipeline with heavy augmentations.
     
@@ -166,11 +189,13 @@ def get_training_augmentation(height, width):
     Returns:
         albumentations.Compose: A composition of augmentation transformations.
     """
+    height = size[0]
+    width = size[1]
     train_transform = [
         A.HorizontalFlip(p=0.5),  # Randomly flip the image horizontally
-        A.PadIfNeeded(min_height=height, min_width=width, always_apply=True, border_mode=0),  # Pad the image if needed
+        A.PadIfNeeded(min_height=height, min_width=width, always_apply=True),  # Pad the image if needed
         A.RandomCrop(height=height, width=width, always_apply=True),  # Randomly crop the image
-        A.ShiftScaleRotate(scale_limit=0.5, rotate_limit=0, shift_limit=0.1, p=1, border_mode=cv2.BORDER_CONSTANT),  # Shift, scale, and rotate the image
+        A.ShiftScaleRotate(scale_limit=0.5, rotate_limit=0, shift_limit=0.1, p=1),  # Shift, scale, and rotate the image
         A.RandomBrightnessContrast(p=0.9),  # Apply random brightness and contrast adjustments
         A.Blur(blur_limit=3, p=0.9),  # Apply random blur
         A.HueSaturationValue(p=0.9),  # Apply random hue, saturation, and value adjustments
@@ -180,7 +205,7 @@ def get_training_augmentation(height, width):
     return A.Compose(train_transform)
 
 
-def get_validation_augmentation(height, width):
+def get_validation_augmentation(size):
     """
     Create a validation augmentation pipeline with minimal transformations.
     
@@ -191,6 +216,8 @@ def get_validation_augmentation(height, width):
     Returns:
         albumentations.Compose: A composition of augmentation transformations.
     """
+    height = size[0]
+    width = size[1]
     test_transform = [
         A.PadIfNeeded(height, width)  # Pad the image if needed to make the shape divisible by the network input size
     ]
@@ -379,6 +406,8 @@ class Dataloader(keras.utils.Sequence):
         data = [self.dataset[j] for j in range(start, stop)]
         # Transpose list of lists to create batch
         batch = [np.stack(samples, axis=0) for samples in zip(*data)]
+        # Convert batch to float32
+        batch = [tf.cast(item, tf.float32) for item in batch]
         return batch
     
     def __len__(self):
