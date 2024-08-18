@@ -70,7 +70,7 @@ This analysis provides a complete pipeline for training and evaluating a road ex
 
 **Results:**
 
-- The model achieves an IOU of over 0.5. A sample of predictions is shown below, for illustrative purposes.
+- The model achieves an IoU of over 0.5. A sample of predictions is shown below, for illustrative purposes.
 
 <img src="doc/predictions.png" width="50%" height="50%">
 
