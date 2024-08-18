@@ -11,7 +11,7 @@ dependencies:
   - opencv
   - pillow
   - albumentations=1.4.11
-  - tensorflow=2.16.2#
+  - tensorflow=2.16.2
   - keras=3.4.1
   - h5py
   - tqdm
