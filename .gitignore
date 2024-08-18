@@ -2,6 +2,7 @@
 data/*
 
 # Notebooks
+notes.txt
 notebooks/*.ipynb
 !notebooks/deep-globe-road-segmentation.ipynb
 
