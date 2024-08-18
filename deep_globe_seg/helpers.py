@@ -9,26 +9,44 @@ from tensorflow import keras
 from typing import Dict, Tuple
 import tensorflow as tf
 
-def visualize(**images):
-    """
-    Plot images in one row.
 
+def visualize_samples(samples, figtitle, figsize=(20, 6*5), num_samples=5):
+    """
+    Visualize image and mask pairs vertically with larger images, column titles, and non-overlapping main title.
     Args:
-        **images: Arbitrary keyword arguments containing image arrays. 
-                  The keys are used as titles for the images.
-
-    Returns:
-        None. This function displays a plot of the images.
+    samples (list): List of (image, mask) tuples
+    num_samples (int): Number of samples to visualize
+    figsize (tuple): Figure size (width, height)
     """
-    n_images = len(images)
-    plt.figure(figsize=(20, 8))
-    for idx, (name, image) in enumerate(images.items()):
-        plt.subplot(1, n_images, idx + 1)
-        plt.xticks([])
-        plt.yticks([])
-        # get title from the parameter names
-        plt.title(name.replace('_', ' ').title(), fontsize=20)
-        plt.imshow(image)
+    num_samples = min(num_samples, len(samples))
+    fig, axes = plt.subplots(num_samples, 2, figsize=figsize)
+    if num_samples == 1:
+        axes = axes.reshape(1, -1)
+    
+    # Set column titles
+    axes[0, 0].set_title('Images', fontsize=18, pad=20)
+    axes[0, 1].set_title('Masks', fontsize=18, pad=20)
+    
+    for i in range(num_samples):
+        image, mask = samples[i][0], samples[i][1]
+        
+        # Remove the first dimension if image and mask have 4 dimensions
+        if image.ndim == 4:
+            image = image[0]
+        if mask.ndim == 4:
+            mask = mask[0]
+        
+        # Display image
+        axes[i, 0].imshow(image)
+        axes[i, 0].axis('off')
+        
+        # Display mask
+        axes[i, 1].imshow(mask.squeeze(), cmap='gray')
+        axes[i, 1].axis('off')
+    
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.9, hspace=0.3)  # Adjusted top margin and vertical spacing
+    fig.suptitle(figtitle, fontsize=22, y=0.98)  # Moved the title up
     plt.show()
 
 
