@@ -19,4 +19,4 @@ dependencies:
   - pip
   - pip:
     - segmentation-models
-    - keras_unet
+    - keras-unet
