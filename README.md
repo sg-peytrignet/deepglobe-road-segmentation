@@ -85,13 +85,14 @@ conda activate road_extraction_env
 
 ###  Running analysis
 
-Run each notebook in the IDE of your choice, such as JupyterLab or Visual Studio.
-
-To convert the notebook into an HTML document, run the command as show in the example below.
+Run each notebook in the IDE of your choice, such as JupyterLab or Visual Studio. You may launch Jupyter from the terminal:
 
 ```sh
-jupyter deep-globe-road-segmentation.ipynb
+jupyter notebook
 ```
+
+In the Jupyter interface that opens in your web browser, click on the .ipynb file to open it. You can now run cells, modify code, and interact with the notebook.
+
 ---
 ##  License
 
