@@ -35,6 +35,21 @@ deepglobe-road-segmentation
 ├── deep_globe_seg
 │   └── helpers.py
 ├── environment.yml
+├── data
+│   ├── train
+│   │   ├── image_001.jpg
+│   │   ├── image_002.jpg
+│   │   └── ...
+│   ├── test
+│   │   ├── image_101.jpg
+│   │   ├── image_102.jpg
+│   │   └── ...
+│   ├── valid
+│   │   ├── image_201.jpg
+│   │   ├── image_202.jpg
+│   │   └── ...
+│   ├── class_dict.csv
+│   └── metadata.csv
 ├── logs
 │   └── training_log.csv
 ├── notebooks
@@ -107,6 +122,10 @@ cd deepglobe-road-segmentation
 conda env create -f environment.yml
 conda activate road_extraction_env
 ```
+
+###  Download data
+
+The images can be downloaded from this [dataset page](https://www.kaggle.com/datasets/balraj98/deepglobe-road-extraction-dataset) on Kaggle. Include the data folder into your local clone of this repository as shown in the tree above. You will need **4.15 GB** of free disk space.
 
 ###  Running analysis
 
