@@ -411,4 +411,31 @@ class Dataloader(keras.utils.Sequence):
     def on_epoch_end(self):
         """Callback function to shuffle indexes each epoch"""
         if self.shuffle:
-            self.indexes = np.random.permutation(self.indexes)  
+            self.indexes = np.random.permutation(self.indexes)
+
+
+def plot_training_history(history, metrics, figsize=(20, 15)):
+    """
+    Plot training history for specified metrics.
+    
+    Args:
+    history (keras.callbacks.History): The history object returned by model.fit()
+    metrics (list): List of metric names to plot
+    figsize (tuple): Figure size for the entire plot
+    """
+    n_metrics = len(metrics)
+    fig, axes = plt.subplots(n_metrics, 1, figsize=figsize)
+    if n_metrics == 1:
+        axes = [axes]
+    
+    for ax, metric in zip(axes, metrics):
+        ax.plot(history.history[metric], label='Train')
+        ax.plot(history.history[f'val_{metric}'], label='Validation')
+        ax.set_title(f'Model {metric}')
+        ax.set_ylabel(metric.replace('_', ' ').title())
+        ax.set_xlabel('Epoch')
+        ax.legend(loc='best')
+        ax.grid(True)
+    
+    plt.tight_layout()
+    plt.show()
