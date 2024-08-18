@@ -4,6 +4,7 @@ data/*
 # Notebooks
 notes.txt
 notebooks/*.ipynb
+notebooks/*.py
 !notebooks/deep-globe-road-segmentation.ipynb
 
 # Byte-compiled / optimized / DLL files
