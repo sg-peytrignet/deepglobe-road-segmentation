@@ -1,8 +1,0 @@
-Maybe some repetition in the config class, and some parameters not used
-Also create a test set for prediction
-What is in the pre-processing function? Does it resize to a target size?
-create multiple modules to store different functions
-round_clip_0_1 and kwargs - does it make sense?
-does the padding and cropping also resize? what's the target?
-what does a generator do exactly?
-what size image is actually required by the model? check augmentation, pre-processing functions to see what they do and why...
