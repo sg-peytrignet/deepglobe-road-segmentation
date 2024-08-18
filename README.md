@@ -10,8 +10,6 @@
 > - [ Repository Structure](#repository-structure)
 > - [ Modules](#modules)
 > - [ Getting Started](#getting-started)
->   - [ Installation](#installation)
->   - [ Running analysis](#running-analysis)
 > - [ Contributing](#contributing)
 > - [ License](#license)
 > - [ Acknowledgments](#acknowledgments)
@@ -123,11 +121,11 @@ conda env create -f environment.yml
 conda activate road_extraction_env
 ```
 
-###  Download data
+###  Download Data
 
 The images can be downloaded from this [dataset page](https://www.kaggle.com/datasets/balraj98/deepglobe-road-extraction-dataset) on Kaggle. Include the data folder into your local clone of this repository as shown in the tree above. You will need **4.15 GB** of free disk space.
 
-###  Running analysis
+###  Running Analysis
 
 Run each notebook in the IDE of your choice, such as JupyterLab or Visual Studio. You may launch Jupyter from the terminal:
 
